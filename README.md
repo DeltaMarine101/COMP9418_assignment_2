@@ -1,1 +1,1 @@
-# COMP9418_assignment_2
+# COMP9418 Assignment 2
