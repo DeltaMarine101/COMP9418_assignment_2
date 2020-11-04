@@ -2,7 +2,7 @@
 COMP9418 Assignment 2
 This file is the example code to show how the assignment will be tested.
 
-Name:     zID:
+Name: Jeremie Kull    zID: 5208518
 
 Name:     zID:
 '''
@@ -41,6 +41,7 @@ import re
 # and that function must take sensor_data as an argument, and return an actions_dict
 #
 
+# Office structure
 office_G = {
     'r1' : ['r2', 'r3'],
     'r2' : ['r1', 'r4'],
@@ -85,13 +86,45 @@ office_G = {
     'outside': ['r12']
 }
 
+# Sensor locations
+urel_sens_loc = {
+    'unreliable_sensor1': 'o1',
+    'unreliable_sensor2': 'c3',
+    'unreliable_sensor3': 'r1',
+    'unreliable_sensor4': 'r24'
+}
+
+rel_sens_loc = {
+    'reliable_sensor1': 'r16',
+    'reliable_sensor2': 'r5',
+    'reliable_sensor3': 'r25',
+    'reliable_sensor4': 'r31'
+}
+
+door_sens_loc = {
+    'door_sensor1': ['r8', 'r9'],
+    'door_sensor2': ['c1', 'c2'],
+    'door_sensor3': ['r26', 'r27'],
+    'door_sensor4': ['r35', 'c4']
+}
+
 # this global state variable demonstrates how to keep track of information over multiple
 # calls to get_action
-state = {}
+
+# initial probability distribution
+state = {
+    'r1' : 0, 'r2' : 0, 'r3' : 0, 'r4' : 0, 'r5' : 0, 'r6' : 0, 'r7' : 0, 'r8' : 0, 'r9' : 0,
+    'r10': 0, 'r11': 0, 'r12': 0, 'r13': 0, 'r14': 0, 'r15': 0, 'r16': 0, 'r17': 0, 'r18': 0,
+    'r19': 0, 'r20': 0, 'r21': 0, 'r22': 0, 'r23': 0, 'r24': 0, 'r25': 0, 'r26': 0, 'r27': 0,
+    'r28': 0, 'r29': 0, 'r30': 0, 'r31': 0, 'r32': 0, 'r33': 0, 'r34': 0, 'r35': 0,
+    'c1' : 0, 'c2' : 0, 'c3' : 0, 'c4' : 0,
+    'o1' : 0,
+    'outside': 1
+}
 training_data = pd.read_csv('data.csv')
 
 # Pre-processing raw data into probability tables
-
+# TODO: create prob tables
 
 def get_action(sensor_data):
     # declare state as a global variable so it can be read and modified within this function
