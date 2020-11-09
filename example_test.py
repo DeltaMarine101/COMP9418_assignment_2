@@ -7,7 +7,7 @@ It should be used to make sure you code will work during testing
 from __future__ import division
 from __future__ import print_function
 
-# Allowed libraries
+# Allowed libraries 
 import numpy as np
 import pandas as pd
 import scipy as sp
@@ -34,10 +34,10 @@ import ast
 from example_solution import get_action
 
 # simulator code
-class Person:
+class Person:    
     def __init__(self, name, office=None):
         self.name = name
-
+        
     def timestep(self, building_simulator):
         pass
 
@@ -68,7 +68,7 @@ class Robot:
         self.current_location = start_room
     def timestep(self, building_simulator):
         pass
-
+    
 
 # part of the code from the building simulator.
 class SmartBuildingSimulatorExample:
@@ -76,15 +76,15 @@ class SmartBuildingSimulatorExample:
         self.data = pd.read_csv('data.csv')
 
         self.num_lights = 35
-        self.num_people = 20
+        self.num_people = 20 
         self.start_time = datetime.time(hour=8,minute=0)
-        self.end_time = datetime.time(17,0)
-        self.time_step = datetime.timedelta(minutes=2) # 2 minute resolution
-
+        self.end_time = datetime.time(18,0)
+        self.time_step = datetime.timedelta(seconds=15) # 15 second
+        
         self.current_time = self.start_time
 
         self.current_electricity_price = 1.0
-        self.productivity_cost = 4
+        self.productivity_cost = 4 
         # cumulative cost so far today
         self.cost = 0
 
@@ -92,14 +92,14 @@ class SmartBuildingSimulatorExample:
 
         self.room_occupancy = dict([(room, 0) for room in ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9', 'r10', 'r11', 'r12', 'r13', 'r14', 'r15', 'r16', 'r17', 'r18', 'r19', 'r20', 'r21', 'r22', 'r23', 'r24', 'r25', 'r26', 'r27', 'r28', 'r29', 'r30', 'r31', 'r32', 'r33', 'r34', 'r35', 'c1', 'c2', 'c3', 'c4', 'o1', 'outside']])
         self.room_occupancy['outside'] = self.num_people
-
+        
         # current state of lights
         lights = {}
         for i in range(1,self.num_lights+1):
             lights["lights"+str(i)] = "off"
 
         self.lights = lights
-
+            
         # set up of all sensors
         self.reliable_motion_sensors = [ReliableSensor('reliable_sensor1','r16'),
                                    ReliableSensor('reliable_sensor2','r5'),
@@ -122,7 +122,7 @@ class SmartBuildingSimulatorExample:
         self.robot_sensors = [Robot('robot1','r1'), Robot('robot2', 'r19')]
 
         self.curr_step = 0
-
+        
     def timestep(self, actions_dict=None):
         '''
         actions_dict is a dictionary that maps from action strings to either 'on' or 'off'
@@ -132,10 +132,10 @@ class SmartBuildingSimulatorExample:
             for key in actions_dict:
                 self.lights[key] # test that that action exists
                 self.lights[key] = actions_dict[key]
-
+                
         # get data for current timestep (only for example)
         current_data = self.data.iloc[self.curr_step]
-        # move people
+        # move people 
         for room in self.room_occupancy:
             self.room_occupancy[room] = current_data.loc[room]
 
@@ -144,30 +144,29 @@ class SmartBuildingSimulatorExample:
 
         # calculate cost
         self.cost += self.cost_of_prev_timestep(self.current_electricity_price)
-
+        
         # update electricity price
         self.current_electricity_price *= np.random.choice([0.98,1/0.98,1.0]) # simple martingale
-
+        
         # work out sensor data
         sensor_data = {}
         for sensor in self.reliable_motion_sensors + self.unreliable_motion_sensors:
             sensor_data[sensor.name] = current_data[sensor.name]
         for robot in self.robot_sensors:
-            robot.timestep(self)
-            sensor_data[robot.name] = current_data[sensor.name]
+            sensor_data[robot.name] = current_data[robot.name]
         for sensor in self.door_sensors:
             sensor_data[sensor.name] = current_data[sensor.name]
 
         # To make sure your code can handle this case,
         # set one random sensor to None
-        broken_sensor = np.random.choice(list(sensor_data.keys()))
+        broken_sensor = np.random.choice(list(sensor_data.keys())) 
         sensor_data[broken_sensor] = None
 
         sensor_data['time'] = self.current_time
         sensor_data['electricity_price'] = self.current_electricity_price
 
         self.curr_step += 1
-
+        
         return sensor_data
 
     def cost_of_prev_timestep(self, electricity_price):
@@ -193,4 +192,5 @@ sensor_data = simulator.timestep()
 for i in range(len(simulator.data)-1):
     actions_dict = get_action(sensor_data)
     sensor_data = simulator.timestep(actions_dict)
+
 print(f"Total cost for the day: {simulator.cost} cents")
