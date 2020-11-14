@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 11 12:34:43 2020
+'''
+COMP9418 Assignment 2
+This file is the example code to show how the assignment will be tested.
 
-@author: pablopacheco
-"""
+Name: Jeremie Kull    zID: z5208518
+
+Name: Pablo Pacheco   zID: z5222810
+'''
 
 # Make division default to floating-point, saving confusion
 from __future__ import division
@@ -136,7 +139,7 @@ door_sens_loc = {
     'door_sensor4': ['r35', 'c4']
 }
 
-all_sensors={
+all_sensors = {
     'unreliable_sensor1': ['o1'],
     'unreliable_sensor2': ['c3'],
     'unreliable_sensor3': ['r1'],
@@ -334,7 +337,6 @@ for sensor, location in all_sensors.items():
     emis_prob_table[sensor] = estProbs(data_processed, sensor, location, outcomeSpace)
 
 
-
 #decompose door_sensors emission prob in order to get just one parent in the conditional prob
 #now, the probability P(door_sensor1|r8) is going to be in emis_prob_table['door_sensor1_r8']
 for k in door_sens_loc.keys():
@@ -502,33 +504,35 @@ def forwardOnlineEmission(f, transition, emission, stateVar, emissionVar, emissi
     fPrevious = f.copy()
     #Put t-1 to the previous domains
     for i in fPrevious.keys():
-        fPrevious[i]['dom']=(i+'_t-1',)
+        fPrevious[i]['dom']=(i + '_t-1',)
 
     #Do a join of all the previous factors
     count=0
     for i in fPrevious.keys():
-        if count==0:
-            joint_prob=fPrevious[i]
-            count +=1
+        if count == 0:
+            joint_prob = fPrevious[i]
+            count += 1
         else:
-            joint_prob=join(joint_prob,fPrevious[i],outcomeSpace)
+            joint_prob = join(joint_prob, fPrevious[i], outcomeSpace)
     #Then the join with the transition prob
-    fCurrent=join(joint_prob,transition,outcomeSpace)
+    fCurrent = join(joint_prob,transition,outcomeSpace)
     #Then, we need to marginalize all the previous state variables
     for i in fPrevious.keys():
-        fCurrent=marginalize(fCurrent,i+'_t-1',outcomeSpace)
+        fCurrent = marginalize(fCurrent, i + '_t-1', outcomeSpace)
 
-    fCurrent=normalize(fCurrent)
+    fCurrent = normalize(fCurrent)
 
     if emissionEvi != None:
         # Set evidence in the form emissionVar = emissionEvi
         newOutcomeSpace = evidence(emissionVar, emissionEvi, outcomeSpace)
         # Make the join operation between fCurrent and the emission probability table. Use the newOutcomeSpace
         fCurrent = join(fCurrent, emission, newOutcomeSpace)
+        # printFactor(fCurrent)
         # Marginalize emissionVar. Use the newOutcomeSpace
         fCurrent = marginalize(fCurrent, emissionVar, newOutcomeSpace)
         # Normalize fCurrent, optional step
         fCurrent = normalize(fCurrent)
+
     return fCurrent
 
 
