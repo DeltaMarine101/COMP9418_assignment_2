@@ -31,8 +31,8 @@ import ast
 
 
 # import the function written by the student
-# from example_solution import get_action
-from notebook_collapsed import get_action
+# from notebook_collapsed import get_action
+from solution_V_14_11 import get_action
 
 # simulator code
 class Person:
@@ -147,7 +147,8 @@ class SmartBuildingSimulatorExample:
         self.cost += self.cost_of_prev_timestep(self.current_electricity_price)
 
         # update electricity price
-        self.current_electricity_price *= np.random.choice([0.98,1/0.98,1.0]) # simple martingale
+        # self.current_electricity_price *= np.random.choice([0.98,1/0.98,1.0]) # simple martingale
+        self.current_electricity_price = current_data['electricity_price']
 
         # work out sensor data
         sensor_data = {}
@@ -160,8 +161,8 @@ class SmartBuildingSimulatorExample:
 
         # To make sure your code can handle this case,
         # set one random sensor to None
-        broken_sensor = np.random.choice(list(sensor_data.keys()))
-        sensor_data[broken_sensor] = None
+        # broken_sensor = np.random.choice(list(sensor_data.keys()))
+        # sensor_data[broken_sensor] = None
 
         sensor_data['time'] = self.current_time
         sensor_data['electricity_price'] = self.current_electricity_price
@@ -185,13 +186,15 @@ class SmartBuildingSimulatorExample:
                 raise Exception("Invalid light state")
         return cost
 
+def run():
+    simulator = SmartBuildingSimulatorExample()
 
+    sensor_data = simulator.timestep()
+    for i in range(len(simulator.data)-1):
+        actions_dict = get_action(sensor_data)
+        sensor_data = simulator.timestep(actions_dict)
 
-simulator = SmartBuildingSimulatorExample()
+    print(f"Total cost for the day: {simulator.cost} cents")
+    return simulator.cost
 
-sensor_data = simulator.timestep()
-for i in range(len(simulator.data)-1):
-    actions_dict = get_action(sensor_data)
-    sensor_data = simulator.timestep(actions_dict)
-
-print(f"Total cost for the day: {simulator.cost} cents")
+run()

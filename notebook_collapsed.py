@@ -438,6 +438,21 @@ def get_action(sensor_data):
                 # print("Probability true:", proba)
                 new_state[i] = proba
 
+    for i in ['robot1','robot2']:
+        #info=sensor_data[i]
+        if sensor_data[i] != None:
+            seen_room=sensor_data[i].split(',')[0].partition("'")[2].partition("'")[0]
+            num_pp=int(sensor_data[i].split(',')[1].strip().partition(')')[0])
+            if seen_room.startswith('r'):
+                if num_pp > 0:
+                    # actions_dict['lights'+seen_room.split('r')[1]]='on'
+                    new_state[seen_room] = 1.0
+                else:
+                    # actions_dict['lights'+seen_room.split('r')[1]]='off'
+                    new_state[seen_room] = 0.0
+
+
+
     prev_sens_data = sensor_data
     state = new_state
 
