@@ -483,7 +483,7 @@ offsets = [.50, d, .54, .48, d, .10, .45, -.10, .43, d, d,
     d, .45, d, .43, d, .65, .46, .25, .60, .40, .35, .65,
     .45, .60, -.15, .45, d, d, d, .65, .65, .43, .15, .6]
 
-# General offset for prioritising lights off vs on
+# Offset for prioritising lights off vs on for each room individually
 offset = {}
 for i in range(35):
     offset['r' + str(i + 1)] = offsets[i]
