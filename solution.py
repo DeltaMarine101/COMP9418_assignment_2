@@ -387,7 +387,6 @@ def join(f1, f2, outcomeSpace):
 def miniForwardOnline(f, transition, outcomeSpace):
     """
     argument
-    'state_variable'(string), state variable whose factor is going to be calculated
     `f`, dictionary of factors (in the previous state of the chain) asociated with the state_variable
     `transition`, transition probabilities from time t-1 to t.
     `outcomeSpace`, dictionary with the domain of each variable.
