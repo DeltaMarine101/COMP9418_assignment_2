@@ -499,28 +499,8 @@ def forwardOnlineEmission(f, transition, emission, stateVar, emissionVar, emissi
 
     Returns a new factor that represents the current state of the chain.
     """
-
-    # Make a copy of f so we will not modify the original factor
-    fPrevious = f.copy()
-    #Put t-1 to the previous domains
-    for i in fPrevious.keys():
-        fPrevious[i]['dom']=(i + '_t-1',)
-
-    #Do a join of all the previous factors
-    count=0
-    for i in fPrevious.keys():
-        if count == 0:
-            joint_prob = fPrevious[i]
-            count += 1
-        else:
-            joint_prob = join(joint_prob, fPrevious[i], outcomeSpace)
-    #Then the join with the transition prob
-    fCurrent = join(joint_prob,transition,outcomeSpace)
-    #Then, we need to marginalize all the previous state variables
-    for i in fPrevious.keys():
-        fCurrent = marginalize(fCurrent, i + '_t-1', outcomeSpace)
-
-    fCurrent = normalize(fCurrent)
+    # perform normal chain forward algorithm
+    fCurrent = miniForwardOnline(f, transition, outcomeSpace)
 
     if emissionEvi != None:
         # Set evidence in the form emissionVar = emissionEvi
