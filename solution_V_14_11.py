@@ -26,96 +26,50 @@ from graphviz import Digraph
 from tabulate import tabulate
 
 
-# Dependencies for transition probabilities (considering all the interactions)
+# Dependencies for transition probabilities (considering important interactions)
 previous_G = {
-    'r1' : ['r1', 'r2'],
+    'r1' : ['r1', 'r2', 'r8'],
     'r2' : ['r1', 'r2'],
     'r3' : ['r1', 'r3'],
     'r4' : ['r2', 'r4'],
-    'r5' : ['r6', 'r9'], # ['r5','r6', 'r9', 'c3'],
+    'r5' : ['r5', 'r6', 'r9'],
     'r6' : ['r6', 'c3'],
     'r7' : ['r3', 'r7'],
-    'r8' : ['r8', 'r9'],
-    'r9' : ['r8', 'r9', 'r13'], # ['r5', 'r8','r9', 'r13'],
+    'r8' : ['r8', 'r9', 'r5'],
+    'r9' : ['r8', 'r9', 'r13'],
     'r10': ['r10', 'c3'],
-    'r11': ['r11', 'c3'],
+    'r11': ['r11', 'c3', 'o1', 'r5'],
     'r12': ['r12', 'r22', 'outside'],
-    'r13': ['r9', 'r13'],
+    'r13': ['r9', 'r13', 'r8'],
     'r14': ['r14', 'r24'],
-    'r15': ['r15', 'c3'],
+    'r15': ['r15', 'c3', 'o1'],
     'r16': ['r16', 'c3'],
     'r17': ['r17', 'c3'],
     'r18': ['r18', 'c3'],
-    'r19': ['r19', 'c3'],
+    'r19': ['r19', 'c3', 'r5'],
     'r20': ['r20', 'c3'],
     'r21': ['r21', 'c3'],
-    'r22': ['r22', 'r25'],
-    'r23': ['r23','r24'],
-    'r24': ['r13', 'r14', 'r23', 'r24'], # ['r13', 'r14', 'r23', 'r24'],
-    'r25': ['r22', 'r25', 'r26'],
-    'r26': ['r26', 'r27'],
-    'r27': ['r26', 'r27'],
+    'r22': ['r22', 'r25', 'outside'],
+    'r23': ['r23', 'r24'],
+    'r24': ['r13', 'r14', 'r23', 'r24'],
+    'r25': ['r22', 'r25', 'r26', 'outside'],
+    'r26': ['r26', 'r27', 'outside', 'r25'],
+    'r27': ['r26', 'r27', 'r31'],
     'r28': ['r28', 'c4'],
     'r29': ['r29', 'r30', 'c4'],
     'r30': ['r29', 'r30'],
     'r31': ['r31', 'r32'],
-    'r32': ['r31', 'r32', 'r33'], # ['r27', 'r31','r32', 'r33'],
-    'r33': ['r32', 'r33'],
-    'r34': ['r34', 'c2'],
+    'r32': ['r31', 'r32', 'r33'],
+    'r33': ['r32', 'r33', 'r27'],
+    'r34': ['r34', 'c2', 'c1'],
     'r35': ['r35', 'c4'],
-    'c1' : ['r7', 'c1', 'c2'], # ['r7', 'r25','c1', 'c2'],
-    'c2' : ['c2', 'c4'], # ['r34', 'c1','c2', 'c4'],
-    'c3' : ['c3', 'r15', 'r20'], # ['r5', 'r6', 'r10', 'r11', 'r15', 'r16', 'r17', 'r18', 'r19', 'r20', 'r21', 'c3','o1'],
-    'c4' : ['c4', 'r28', 'r35', 'c2'], # ['r28', 'r29', 'r35', 'c2','c4', 'o1'],
-    'o1' : ['c3', 'c4', 'o1'],
-    'outside': ['r12','outside']
+    'c1' : ['r7', 'c1', 'c2'],
+    'c2' : ['c2', 'c4'],
+    'c3' : ['c3', 'r15', 'r20', 'c4'],
+    'c4' : ['c4', 'r28', 'r35', 'c2'],
+    'o1' : ['c3', 'c4', 'o1', 'c2'],
+    'outside': ['r12', 'outside', 'r25']
 }
-
-# Dependencies for transition probabilities. For sensored rooms we are not going to consider rooms interactions
-
-# previous_G = {
-#     'r1' : ['r1'],
-#     'r2' : ['r1', 'r2','r4'],
-#     'r3' : ['r1', 'r3','r7'],
-#     'r4' : ['r2', 'r4','r8'],
-#     'r5' : ['r5'],
-#     'r6' : ['r5','r6','c3'],
-#     'r7' : ['r3', 'r7','c1'],
-#     'r8' : ['r8'],
-#     'r9' : ['r9'],
-#     'r10': ['r10','c3'],
-#     'r11': ['r11','c3'],
-#     'r12': ['r12','r22', 'outside'],
-#     'r13': ['r9', 'r13','r24'],
-#     'r14': ['r14','r24'],
-#     'r15': ['r15','c3'],
-#     'r16': ['r16'],
-#     'r17': ['r17','c3'],
-#     'r18': ['r18','c3'],
-#     'r19': ['r19','c3'],
-#     'r20': ['r20','c3'],
-#     'r21': ['r21','c3'],
-#     'r22': ['r12', 'r22','r25'],
-#     'r23': ['r23','r24'],
-#     'r24': ['r24'],
-#     'r25': ['r25'],
-#     'r26': ['r26'],
-#     'r27': ['r27'],
-#     'r28': ['r28','c4'],
-#     'r29': ['r29','r30', 'c4'],
-#     'r30': ['r29','r30'],
-#     'r31': ['r31'],
-#     'r32': ['r32', 'r33'],
-#     'r33': ['r32','r33'],
-#     'r34': ['r34','c2'],
-#     'r35': ['r35'],
-#     'c1' : ['c1'],
-#     'c2' : ['c2', 'r34', 'c1', 'c4'],
-#     'c3' : ['c3'],
-#     'c4' : ['c4', 'r28', 'o1', 'c2'],
-#     'o1' : ['o1'],
-#     'outside': ['r12','outside']
-# }
 
 # Sensor locations
 urel_sens_loc = {
@@ -156,9 +110,6 @@ all_sensors = {
 
 rob_list = ['robot1', 'robot2']
 
-for i in previous_G.keys():
-    previous_G[i] += [i]
-
 # Creating reverse lookup dict
 sens_rooms = {}
 for sens, locs in all_sensors.items():
@@ -188,8 +139,11 @@ all_rooms = list(previous_G.keys())
 
 #We are going to consider just if a room is empty or not (we don't care about the exact number of people)
 data_processed = {}
-for i in all_rooms + list(door_sens_loc.keys()):
+for i in all_rooms:
     data_processed[i] = (data_numpy[:,data_cols.index(i)] > 0)
+
+for i in door_sens_loc.keys():
+    data_processed[i] = (data_numpy[:,data_cols.index(i)] > 1)
 
 for i in list(urel_sens_loc.keys()) + list(rel_sens_loc.keys()):
     data_processed[i] = (data_numpy[:,data_cols.index(i)] == "motion")
@@ -326,6 +280,7 @@ def marginalize(f, var, outcomeSpace):
         table.append((entries, s))
     return {'dom': tuple(new_dom), 'table': odict(table)}
 
+######################## GENERATE TABLES FROM DATA #############################
 # Get all transition probabilities
 tran_prob_table={}
 for present, previous in previous_G.items():
@@ -335,7 +290,6 @@ for present, previous in previous_G.items():
 emis_prob_table={}
 for sensor, location in all_sensors.items():
     emis_prob_table[sensor] = estProbs(data_processed, sensor, location, outcomeSpace)
-
 
 #decompose door_sensors emission prob in order to get just one parent in the conditional prob
 #now, the probability P(door_sensor1|r8) is going to be in emis_prob_table['door_sensor1_r8']
