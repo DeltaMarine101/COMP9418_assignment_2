@@ -325,7 +325,7 @@ for k in emis_prob_table.keys():
 initial_prob_tables={}
 for k in previous_G.keys():
     # Greatly improves our result
-    p = 0.5
+    p = .95
     initial_prob_tables[k]={'dom':(k,),'table':odict([((False,),p) ,((True,),1-p),]) }
 initial_prob_tables['outside']={'dom':(k,),'table':odict([((False,),0.0) ,((True,),1.0),]) }
 
