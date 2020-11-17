@@ -476,6 +476,18 @@ state = initial_prob_tables.copy()
 previous_state=state.copy()
 actions_dict = {'lights1': 'off', 'lights2': 'off', 'lights3': 'off', 'lights4': 'off', 'lights5': 'off', 'lights6': 'off', 'lights7': 'off', 'lights8': 'off', 'lights9': 'off', 'lights10': 'off', 'lights11': 'off', 'lights12': 'off', 'lights13': 'off', 'lights14': 'off', 'lights15': 'off', 'lights16': 'off', 'lights17': 'off', 'lights18': 'off', 'lights19': 'off', 'lights20': 'off', 'lights21': 'off', 'lights22': 'off', 'lights23': 'off', 'lights24': 'off', 'lights25': 'off', 'lights26': 'off', 'lights27': 'off', 'lights28': 'off', 'lights29': 'off', 'lights30': 'off', 'lights31': 'off', 'lights32': 'off', 'lights33': 'off', 'lights34': 'off', 'lights35':'off'}
 
+
+
+d = .52 # default offset
+offsets = [.50, d, .54, .48, d, .10, .45, -.10, .43, d, d,
+    d, .45, d, .43, d, .65, .46, .25, .60, .40, .35, .65,
+    .45, .60, -.15, .45, d, d, d, .65, .65, .43, .15, .6]
+
+# General offset for prioritising lights off vs on
+offset = {}
+for i in range(35):
+    offset['r' + str(i + 1)] = offsets[i]
+
 def get_action(sensor_data):
     global actions_dict
     global initial_prob_tables
@@ -494,8 +506,6 @@ def get_action(sensor_data):
     # Slightly offset probabilities based on electricity price
     elec = sensor_data['electricity_price']
     elec_weight = 0.55
-    # General offset for prioritising lights off vs on
-    offset = .52
 
     #transform sensor_data
     for k in sensor_data.keys():
@@ -516,7 +526,7 @@ def get_action(sensor_data):
             state[i]=miniForwardOnline(dict_variables, tran_prob_table[i], outcomeSpace)
 
         if i.startswith('r'):
-            inde = prob(state[i], 0) <= prob(state[i], 1) + (1 - elec) * elec_weight + offset
+            inde = prob(state[i], 0) <= prob(state[i], 1) + (1 - elec) * elec_weight + offset[i]
             actions_dict['lights' + i.split('r')[1]] = ('off', 'on')[inde]
 
     # use robots
