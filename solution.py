@@ -557,9 +557,6 @@ def get_action(sensor_data):
     global list_non_sens_rooms
     global previous_G
 
-    # Slightly offset probabilities based on electricity price
-    elec = sensor_data['electricity_price']
-
     #transform sensor_data
     for k in sensor_data.keys():
         if sensor_data[k]!=None:
@@ -569,7 +566,7 @@ def get_action(sensor_data):
                 sensor_data[k]=(0,1)[sensor_data[k]>0]
 
     for i in state.keys():
-        # create dictionary with the factors of the state variables associated with the state variable i
+        #create dictionary with the factors of the state variables associated with the state variable i
         dict_variables={}
         for k in previous_G[i]:
             dict_variables[k]=previous_state[k]
@@ -579,17 +576,17 @@ def get_action(sensor_data):
             state[i]=miniForwardOnline(dict_variables, tran_prob_table[i], outcomeSpace)
 
         if i.startswith('r'):
-            inde = prob(state[i], 0) <= prob(state[i], 1) + (elec - 1) / 10
+            inde = prob(state[i], 0) <= prob(state[i], 1)
             actions_dict['lights' + i.split('r')[1]] = ('off', 'on')[inde]
 
-    # use robots
+    #use robots
     for i in ['robot1','robot2']:
         #info=sensor_data[i]
         if sensor_data[i] != None:
             seen_room=sensor_data[i].split(',')[0].partition("'")[2].partition("'")[0]
             num_pp=int(sensor_data[i].split(',')[1].strip().partition(')')[0])
             if seen_room.startswith('r'):
-                # Robots are 100% reliable, .999 used to avoid 0 probabilities
+                # Reobots are 100% reliable, .999 used to avoid 0 probabilities
                 p = 0.999
                 if num_pp > 0:
                     actions_dict['lights'+seen_room.split('r')[1]]='on'
