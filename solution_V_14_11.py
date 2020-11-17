@@ -140,13 +140,14 @@ all_rooms = list(previous_G.keys())
 #We are going to consider just if a room is empty or not (we don't care about the exact number of people)
 data_processed = {}
 for i in all_rooms:
-    data_processed[i] = (data_numpy[:,data_cols.index(i)] > 0)
+    data_processed[i] = (data_numpy[:, data_cols.index(i)] > 0)
 
+# Consider a door sensor 'active' only if 2 or more people have walked through it
 for i in door_sens_loc.keys():
-    data_processed[i] = (data_numpy[:,data_cols.index(i)] > 1)
+    data_processed[i] = (data_numpy[:, data_cols.index(i)] > 1)
 
 for i in list(urel_sens_loc.keys()) + list(rel_sens_loc.keys()):
-    data_processed[i] = (data_numpy[:,data_cols.index(i)] == "motion")
+    data_processed[i] = (data_numpy[:, data_cols.index(i)] == "motion")
 
 #In the case of a space: the value True means there is at least one person and False there is no person at all
 #In the case of a sensor: the value True means there was detected movement and False it wasn't
@@ -246,7 +247,6 @@ def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
 #function from tutorial to calculate probability given an entry
 def prob(factor, *entry):
     return factor['table'][entry]
-
 
 def marginalize(f, var, outcomeSpace):
     """
@@ -493,6 +493,8 @@ def get_action(sensor_data):
 
     # Slightly offset probabilities based on electricity price
     elec = sensor_data['electricity_price']
+    # General offset for prioritising lights off vs on
+    offset = .52
 
     #transform sensor_data
     for k in sensor_data.keys():
@@ -513,7 +515,7 @@ def get_action(sensor_data):
             state[i]=miniForwardOnline(dict_variables, tran_prob_table[i], outcomeSpace)
 
         if i.startswith('r'):
-            inde = prob(state[i], 0) <= prob(state[i], 1) + (elec - 1) / 10
+            inde = prob(state[i], 0) <= prob(state[i], 1) + (elec - 1) / 10 + offset
             actions_dict['lights' + i.split('r')[1]] = ('off', 'on')[inde]
 
     # use robots
