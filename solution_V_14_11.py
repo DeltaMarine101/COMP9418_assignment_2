@@ -493,6 +493,7 @@ def get_action(sensor_data):
 
     # Slightly offset probabilities based on electricity price
     elec = sensor_data['electricity_price']
+    elec_weight = 0.55
     # General offset for prioritising lights off vs on
     offset = .52
 
@@ -515,7 +516,7 @@ def get_action(sensor_data):
             state[i]=miniForwardOnline(dict_variables, tran_prob_table[i], outcomeSpace)
 
         if i.startswith('r'):
-            inde = prob(state[i], 0) <= prob(state[i], 1) + (elec - 1) / 10 + offset
+            inde = prob(state[i], 0) <= prob(state[i], 1) + (1 - elec) * elec_weight + offset
             actions_dict['lights' + i.split('r')[1]] = ('off', 'on')[inde]
 
     # use robots
