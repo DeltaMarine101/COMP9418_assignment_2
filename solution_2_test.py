@@ -28,7 +28,7 @@ from tabulate import tabulate
 
 # Dependencies for transition probabilities (considering important interactions)
 previous_G = {
-    'r1' : ['r1', 'r2'],
+    'r1' : ['r1', 'r2', 'r8'],
     'r2' : ['r1', 'r2'],
     'r3' : ['r1', 'r3'],
     'r4' : ['r2', 'r4'],
@@ -38,7 +38,7 @@ previous_G = {
     'r8' : ['r8', 'r9', 'r5'],
     'r9' : ['r8', 'r9', 'r13'],
     'r10': ['r10', 'c3'],
-    'r11': ['r11', 'c3', 'o1'],
+    'r11': ['r11', 'c3', 'o1', 'r5'],
     'r12': ['r12', 'r22', 'outside'],
     'r13': ['r9', 'r13', 'r8'],
     'r14': ['r14', 'r24'],
@@ -51,9 +51,9 @@ previous_G = {
     'r21': ['r21', 'c3'],
     'r22': ['r22', 'r25', 'outside'],
     'r23': ['r23', 'r24'],
-    'r24': ['r13', 'r23', 'r24'],
-    'r25': ['r25', 'r26', 'outside'],
-    'r26': ['r27', 'outside', 'r25'],
+    'r24': ['r13', 'r14', 'r23', 'r24'],
+    'r25': ['r22', 'r25', 'r26', 'outside'],
+    'r26': ['r26', 'r27', 'outside', 'r25'],
     'r27': ['r26', 'r27', 'r31'],
     'r28': ['r28', 'c4'],
     'r29': ['r29', 'r30', 'c4'],
@@ -65,9 +65,9 @@ previous_G = {
     'r35': ['r35', 'c4'],
     'c1' : ['r7', 'c1', 'c2'],
     'c2' : ['c2', 'c4'],
-    'c3' : ['c3', 'r20', 'c4'],
-    'c4' : ['r28', 'r35', 'c2'],
-    'o1' : ['c3', 'c4', 'o1'],
+    'c3' : ['c3', 'r15', 'r20', 'c4'],
+    'c4' : ['c4', 'r28', 'r35', 'c2'],
+    'o1' : ['c3', 'c4', 'o1', 'c2'],
     'outside': ['r12', 'outside', 'r25']
 }
 
@@ -525,11 +525,9 @@ offsets = [.50, d, .54, .48, d, .10, .45, -.10, .43, d, d,
 # General offset for prioritising lights off vs on
 offset = {}
 for i in range(35):
-    offset['r' + str(i + 1)] = d # offsets[i]
-offset['r8'] = 0.0
-offset['r26'] = 0.0
+    offset['r' + str(i + 1)] = offsets[i]
 
-def get_action(sensor_data):
+def get_alt_action(sensor_data):
     global actions_dict
     global initial_prob_tables
     global tran_prob_table
@@ -547,7 +545,7 @@ def get_action(sensor_data):
 
     # Slightly offset probabilities based on electricity price
     elec = sensor_data['electricity_price']
-    elec_weight = .55
+    elec_weight = 0.55
 
     #transform sensor_data
     for k in sensor_data.keys():
