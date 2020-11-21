@@ -16,15 +16,8 @@ from __future__ import print_function
 # Allowed libraries
 import numpy as np
 import pandas as pd
-import scipy as sp
-import heapq as pq
-import matplotlib as mp
-import math, time, random
-from itertools import product, combinations
+from itertools import product
 from collections import OrderedDict as odict
-from graphviz import Digraph
-from tabulate import tabulate
-import pickle
 
 # Dependencies for transition probabilities (considering important interactions)
 previous_G = {
@@ -152,29 +145,6 @@ for i in list(urel_sens_loc.keys()) + list(rel_sens_loc.keys()):
 #In the case of a space: the value True means there is at least one person and False there is no person at all
 #In the case of a sensor: the value True means there was detected movement and False it wasn't
 outcomeSpace = learn_outcome_space(data_processed)
-
-#function from tutorial to print a factor
-# def printFactor(f):
-#     """
-#     argument
-#     `f`, a factor to print on screen
-#     """
-#     # Create a empty list that we will fill in with the probability table entries
-#     table = list()
-
-#     # Iterate over all keys and probability values in the table
-#     for key, item in f['table'].items():
-#         # Convert the tuple to a list to be able to manipulate it
-#         k = list(key)
-#         # Append the probability value to the list with key values
-#         k.append(item)
-#         # Append an entire row to the table
-#         table.append(k)
-#     # dom is used as table header. We need it converted to list
-#     dom = list(f['dom'])
-#     # Append a 'Pr' to indicate the probabity column
-#     dom.append('Pr')
-#     print(tabulate(table,headers=dom,tablefmt='orgtbl'))
 
 #Function from tutorial to hep to construct the table probablities
 def allEqualThisIndex(dict_of_arrays, **fixed_vars):
@@ -311,16 +281,6 @@ for k in door_sens_loc.keys():
 #Eliminate the old door_sensor tables
 for k in door_sens_loc.keys():
     emis_prob_table.pop(k)
-
-##### TODO: Remember to comment this out!!!
-outfile = open('tables', 'wb')
-pickle.dump([emis_prob_table, tran_prob_table], outfile)
-outfile.close()
-
-#### Use pickle to save a fraction of a second here, tables generated using code above ####
-infile = open('tables', 'rb')
-emis_prob_table, tran_prob_table = pickle.load(infile)
-infile.close()
 
 #Make a dictionary of emission probabilities with the state variable as a key
 emis_prob_table_varstate={}
@@ -463,7 +423,6 @@ def forwardOnlineEmission(f, transition, emission, stateVar, emissionVar, emissi
         newOutcomeSpace = evidence(emissionVar, emissionEvi, outcomeSpace)
         # Make the join operation between fCurrent and the emission probability table. Use the newOutcomeSpace
         fCurrent = join(fCurrent, emission, newOutcomeSpace)
-        # printFactor(fCurrent)
         # Marginalize emissionVar. Use the newOutcomeSpace
         fCurrent = marginalize(fCurrent, emissionVar, newOutcomeSpace)
         # Normalize fCurrent, optional step
@@ -472,29 +431,21 @@ def forwardOnlineEmission(f, transition, emission, stateVar, emissionVar, emissi
     return fCurrent
 
 
-
 # Initial state
 state = initial_prob_tables.copy()
 previous_state=state.copy()
 actions_dict = {'lights1': 'off', 'lights2': 'off', 'lights3': 'off', 'lights4': 'off', 'lights5': 'off', 'lights6': 'off', 'lights7': 'off', 'lights8': 'off', 'lights9': 'off', 'lights10': 'off', 'lights11': 'off', 'lights12': 'off', 'lights13': 'off', 'lights14': 'off', 'lights15': 'off', 'lights16': 'off', 'lights17': 'off', 'lights18': 'off', 'lights19': 'off', 'lights20': 'off', 'lights21': 'off', 'lights22': 'off', 'lights23': 'off', 'lights24': 'off', 'lights25': 'off', 'lights26': 'off', 'lights27': 'off', 'lights28': 'off', 'lights29': 'off', 'lights30': 'off', 'lights31': 'off', 'lights32': 'off', 'lights33': 'off', 'lights34': 'off', 'lights35':'off'}
 
 
-
-d = .52 # default offset
-offsets = [.50, d, .54, .48, d, .10, .45, -.10, .43, d, d,
-    d, .45, d, .43, d, .65, .46, .25, .60, .40, .35, .65,
-    .45, .60, -.15, .45, d, d, d, .65, .65, .43, .15, .6]
-
 # General offset for prioritising lights off vs on
 offset = {}
 for i in range(35):
-    offset['r' + str(i + 1)] = d # offsets[i]
+    offset['r' + str(i + 1)] = .52
 offset['r8'] = 0.0
 offset['r26'] = 0.0
 
 def get_action(sensor_data):
     global actions_dict
-    global initial_prob_tables
     global tran_prob_table
     global emis_prob_table_varstate
     global outcomeSpace
@@ -504,7 +455,6 @@ def get_action(sensor_data):
     global urel_sens_loc
     global rel_sens_loc
     global door_sens_loc
-    global list_non_sens_rooms
     global previous_G
     global offset
 
@@ -551,9 +501,6 @@ def get_action(sensor_data):
                     actions_dict['lights'+seen_room.split('r')[1]]='off'
                     state[seen_room]['table']=odict([((False,), p) ,((True,), 1 - p),])
 
-
-
-       #actions_dict = {'lights1': 'off', 'lights2': 'off', 'lights3': 'off', 'lights4': 'off', 'lights5': 'off', 'lights6': 'off', 'lights7': 'off', 'lights8': 'off', 'lights9': 'off', 'lights10': 'off', 'lights11': 'off', 'lights12': 'off', 'lights13': 'off', 'lights14': 'off', 'lights15': 'off', 'lights16': 'off', 'lights17': 'off', 'lights18': 'off', 'lights19': 'off', 'lights20': 'off', 'lights21': 'off', 'lights22': 'off', 'lights23': 'off', 'lights24': 'off', 'lights25': 'off', 'lights26': 'off', 'lights27': 'off', 'lights28': 'off', 'lights29': 'off', 'lights30': 'off', 'lights31': 'off', 'lights32': 'off', 'lights33': 'off', 'lights34': 'off', 'lights35':'off'}
     previous_state=state.copy()
 
     return actions_dict

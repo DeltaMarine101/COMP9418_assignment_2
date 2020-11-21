@@ -147,7 +147,7 @@ class SmartBuildingSimulatorExample:
         self.cost += self.cost_of_prev_timestep(self.current_electricity_price)
 
         # to sta5bilise our testing
-        seed = 16
+        seed = 1
         # update electricity price
         np.random.seed(current_data[0] * seed)
         self.current_electricity_price *= np.random.choice([0.98,1/0.98,1.0]) # simple martingale
