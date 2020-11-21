@@ -13,7 +13,7 @@ Name: Pablo Pacheco   zID: z5222810
 from __future__ import division
 from __future__ import print_function
 
-# Allowed libraries
+# Used libraries
 import numpy as np
 import pandas as pd
 from itertools import product
@@ -49,14 +49,14 @@ previous_G = {
     'r26': ['r27', 'r25'],
     'r27': ['r26', 'r27', 'r31'],
     'r28': ['r28', 'c4'],
-    'r29': ['r29', 'r30', 'c4'],
+    'r29': ['r29', 'r30'],
     'r30': ['r29', 'r30'],
     'r31': ['r31', 'r32'],
-    'r32': ['r31', 'r32', 'r33'],
+    'r32': ['r31', 'r32'],
     'r33': ['r32', 'r33', 'r27'],
-    'r34': ['r34', 'c2', 'c1'],
+    'r34': ['r34', 'c2'],
     'r35': ['r35', 'c4'],
-    'c1' : ['r7', 'c1', 'c2'],
+    'c1' : ['c1', 'c2'],
     'c2' : ['c2', 'c4'],
     'c3' : ['c3', 'c4'],
     'c4' : ['r28', 'r35', 'c2'],
@@ -130,7 +130,7 @@ data_cols = list(data.columns)
 
 all_rooms = list(previous_G.keys())
 
-#We are going to consider just if a room is empty or not (we don't care about the exact number of people)
+# We are going to consider just if a room is empty or not (we don't care about the exact number of people)
 data_processed = {}
 for i in all_rooms:
     data_processed[i] = (data_numpy[:, data_cols.index(i)] > 0)
@@ -142,11 +142,11 @@ for i in door_sens_loc.keys():
 for i in list(urel_sens_loc.keys()) + list(rel_sens_loc.keys()):
     data_processed[i] = (data_numpy[:, data_cols.index(i)] == "motion")
 
-#In the case of a space: the value True means there is at least one person and False there is no person at all
-#In the case of a sensor: the value True means there was detected movement and False it wasn't
+# In the case of a space: the value True means there is at least one person and False there is no person at all
+# In the case of a sensor: the value True means there was detected movement and False it wasn't
 outcomeSpace = learn_outcome_space(data_processed)
 
-#Function from tutorial to hep to construct the table probablities
+# Function from tutorial to hep to construct the table probablities
 def allEqualThisIndex(dict_of_arrays, **fixed_vars):
     """
     Helper function to create a boolean index vector into a tabular data structure,
@@ -172,7 +172,7 @@ def allEqualThisIndex(dict_of_arrays, **fixed_vars):
         index = index & (np.asarray(dict_of_arrays[var_name])==var_val)
     return index
 
-#Function to create the transition and emission probability tables
+# Function to create the transition and emission probability tables
 def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
     """
     Calculate a dictionary probability table by ML given
@@ -197,10 +197,10 @@ def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
     for i, parent_combination in enumerate(all_parent_combinations):
         parent_vars = dict(zip(parent_names, parent_combination))
         parent_index = allEqualThisIndex(data, **parent_vars)
-        ########we care for the previous state only, so we delete the last row#########
+        ######## we care for the previous state only, so we delete the last row#########
         parent_index=(parent_index, parent_index[:-parent_offest])[parent_offest > 0]
         var_index = data[var_name][parent_offest:]
-        ########we need to consider from the second state, so we delete the first row#########
+        ######## we need to consider from the second state, so we delete the first row#########
 
         p = ((var_index & parent_index).sum()+alpha)/(parent_index.sum() + alpha*len(var_outcomes))
         prob_table[tuple(list(parent_combination)+[1])] = p
@@ -211,10 +211,10 @@ def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
 
     return {'dom': tuple(list(parent_names)+[var_name]), 'table': prob_table}
 
-#function from tutorial to calculate probability given an entry
+# function from tutorial to calculate probability given an entry
 def prob(factor, *entry):
     return factor['table'][entry]
-#functio from tutorial to marginalize
+# functio from tutorial to marginalize
 def marginalize(f, var, outcomeSpace):
     """
     argument
@@ -257,20 +257,20 @@ emis_prob_table={}
 for sensor, location in all_sensors.items():
     emis_prob_table[sensor] = estProbs(data_processed, sensor, location, outcomeSpace)
 
-#decompose door_sensors emission prob in order to get just one parent in the conditional prob
-#now, the probability P(door_sensor1|r8) is going to be in emis_prob_table['door_sensor1_r8']
+# decompose door_sensors emission prob in order to get just one parent in the conditional prob
+# now, the probability P(door_sensor1|r8) is going to be in emis_prob_table['door_sensor1_r8']
 for k in door_sens_loc.keys():
     for i in door_sens_loc[k]:
-        #create the empty dict
+        # create the empty dict
         emis_prob_table[str(k)+'_'+str(i)]={}
         emis_prob_table[str(k)+'_'+str(i)]['dom']=(str(i),str(k))
         emis_prob_table[str(k)+'_'+str(i)]['table']=odict()
 
-        #marginalize over the parent that we want to extract
+        # marginalize over the parent that we want to extract
         extr_parent=set(emis_prob_table[k]['dom'])-set([i,k])
         marg_prob=marginalize(emis_prob_table[k],extr_parent.pop(),outcomeSpace)
 
-        #normilize probabilities
+        # normilize probabilities
         for j in range(2):
             prob_1=prob(marg_prob,j,0)
             prob_2=prob(marg_prob,j,1)
@@ -278,24 +278,24 @@ for k in door_sens_loc.keys():
             emis_prob_table[str(k)+'_'+str(i)]['table'][(j,0)]=marg_prob['table'][(j,0)]/s_probs
             emis_prob_table[str(k)+'_'+str(i)]['table'][(j,1)]=marg_prob['table'][(j,1)]/s_probs
 
-#Eliminate the old door_sensor tables
+# Eliminate the old door_sensor tables
 for k in door_sens_loc.keys():
     emis_prob_table.pop(k)
 
-#Make a dictionary of emission probabilities with the state variable as a key
+# Make a dictionary of emission probabilities with the state variable as a key
 emis_prob_table_varstate={}
 for k in emis_prob_table.keys():
     emis_prob_table_varstate[emis_prob_table[k]['dom'][0]]=emis_prob_table[k]
 
-#Get all the initial probabilities which are going to be 1 for empty and 0 for not_empty
+# Get all the initial probabilities which are going to be 1 for empty and 0 for not_empty
 initial_prob_tables={}
 for k in previous_G.keys():
     # Greatly improves our result
     p = .95
     initial_prob_tables[k]={'dom':(k,),'table':odict([((False,),p) ,((True,),1-p),]) }
-initial_prob_tables['outside']={'dom':(k,),'table':odict([((False,),0.0) ,((True,),1.0),]) }
+initial_prob_tables['outside']={'dom':(k,),'table':odict([((False,),0.01) ,((True,),0.99),]) }
 
-#Function from tutorial to get a new outcomespace given some evidence
+# Function from tutorial to get a new outcomespace given some evidence
 def evidence(var, e, outcomeSpace):
     """
     argument
@@ -310,7 +310,7 @@ def evidence(var, e, outcomeSpace):
     return newOutcomeSpace
 
 
-#function from tutoral to calculate join probability given two factors
+# function from tutoral to calculate join probability given two factors
 def join(f1, f2, outcomeSpace):
     """
     argument
@@ -345,7 +345,7 @@ def join(f1, f2, outcomeSpace):
     return {'dom': tuple(common_vars), 'table': odict(table)}
 
 
-#Function from tutorial to normalize
+# Function from tutorial to normalize
 def normalize(f):
     """
     argument
@@ -361,8 +361,8 @@ def normalize(f):
         table.append((k, p/sum))
     return {'dom': f['dom'], 'table': odict(table)}
 
-#This is a modification of the tutorial function. This is for markov chains which state variable depend on the
-#the previous state of one or more state variables
+# This is a modification of the tutorial function. This is for markov chains which state variable depend on the
+# the previous state of one or more state variables
 def miniForwardOnline(f, transition, outcomeSpace):
     """
     argument
@@ -375,11 +375,11 @@ def miniForwardOnline(f, transition, outcomeSpace):
 
     # Make a copy of f so we will not modify the original factor
     fPrevious = f.copy()
-    #Put t-1 to the previous domains
+    # Put t-1 to the previous domains
     for i in fPrevious.keys():
         fPrevious[i]['dom']=(i+'_t-1',)
 
-    #Do a join of all the previous factors
+    # Do a join of all the previous factors
     count=0
     for i in fPrevious.keys():
         if count==0:
@@ -390,12 +390,12 @@ def miniForwardOnline(f, transition, outcomeSpace):
 
     fCurrent=join(joint_prob,transition,outcomeSpace)
 
-    #Then, we need to marginalize all the previous state variables
+    # Then, we need to marginalize all the previous state variables
     for i in fPrevious.keys():
         fCurrent=marginalize(fCurrent,i+'_t-1',outcomeSpace)
 
-    #The above gave us a normalized distribution, but given we are working with tiny numbers after the aprox 1000 iteration
-    #the distribuion start to be not normalized, so we normalize in every step to avoid this problem.
+    # The above gave us a normalized distribution, but given we are working with tiny numbers after the aprox 1000 iteration
+    # the distribuion start to be not normalized, so we normalize in every step to avoid this problem.
     fCurrent=normalize(fCurrent)
 
     return fCurrent
@@ -440,7 +440,7 @@ actions_dict = {'lights1': 'off', 'lights2': 'off', 'lights3': 'off', 'lights4':
 # General offset for prioritising lights off vs on
 offset = {}
 for i in range(35):
-    offset['r' + str(i + 1)] = .52
+    offset['r' + str(i + 1)] = .57
 offset['r8'] = 0.0
 offset['r26'] = 0.0
 
@@ -460,9 +460,9 @@ def get_action(sensor_data):
 
     # Slightly offset probabilities based on electricity price
     elec = sensor_data['electricity_price']
-    elec_weight = .55
+    elec_weight = .43
 
-    #transform sensor_data
+    # transform sensor_data
     for k in sensor_data.keys():
         if sensor_data[k]!=None:
             if k in list(urel_sens_loc.keys())+list(rel_sens_loc.keys()):
@@ -487,7 +487,7 @@ def get_action(sensor_data):
 
     # use robots
     for i in ['robot1','robot2']:
-        #info=sensor_data[i]
+        # info=sensor_data[i]
         if sensor_data[i] != None:
             seen_room=sensor_data[i].split(',')[0].partition("'")[2].partition("'")[0]
             num_pp=int(sensor_data[i].split(',')[1].strip().partition(')')[0])
