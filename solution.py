@@ -28,7 +28,7 @@ from tabulate import tabulate
 
 # Dependencies for transition probabilities (considering important interactions)
 previous_G = {
-    'r1' : ['r1', 'r2', 'r8'],
+    'r1' : ['r1', 'r2'],
     'r2' : ['r1', 'r2'],
     'r3' : ['r1', 'r3'],
     'r4' : ['r2', 'r4'],
@@ -38,7 +38,7 @@ previous_G = {
     'r8' : ['r8', 'r9', 'r5'],
     'r9' : ['r8', 'r9', 'r13'],
     'r10': ['r10', 'c3'],
-    'r11': ['r11', 'c3', 'o1', 'r5'],
+    'r11': ['r11', 'c3', 'o1'],
     'r12': ['r12', 'r22', 'outside'],
     'r13': ['r9', 'r13', 'r8'],
     'r14': ['r14', 'r24'],
@@ -51,9 +51,9 @@ previous_G = {
     'r21': ['r21', 'c3'],
     'r22': ['r22', 'r25', 'outside'],
     'r23': ['r23', 'r24'],
-    'r24': ['r13', 'r14', 'r23', 'r24'],
-    'r25': ['r22', 'r25', 'r26', 'outside'],
-    'r26': ['r26', 'r27', 'outside', 'r25'],
+    'r24': ['r13', 'r23', 'r24'],
+    'r25': ['r25', 'r26', 'outside'],
+    'r26': ['r27', 'outside', 'r25'],
     'r27': ['r26', 'r27', 'r31'],
     'r28': ['r28', 'c4'],
     'r29': ['r29', 'r30', 'c4'],
@@ -65,11 +65,58 @@ previous_G = {
     'r35': ['r35', 'c4'],
     'c1' : ['r7', 'c1', 'c2'],
     'c2' : ['c2', 'c4'],
-    'c3' : ['c3', 'r15', 'r20', 'c4'],
-    'c4' : ['c4', 'r28', 'r35', 'c2'],
-    'o1' : ['c3', 'c4', 'o1', 'c2'],
+    'c3' : ['c3', 'r20', 'c4'],
+    'c4' : ['r28', 'r35', 'c2'],
+    'o1' : ['c3', 'c4', 'o1'],
     'outside': ['r12', 'outside', 'r25']
 }
+
+# Dependencies for transition probabilities. For sensored rooms we are not going to consider rooms interactions
+
+# previous_G = {
+#     'r1' : ['r1'],
+#     'r2' : ['r1', 'r2','r4'],
+#     'r3' : ['r1', 'r3','r7'],
+#     'r4' : ['r2', 'r4','r8'],
+#     'r5' : ['r5'],
+#     'r6' : ['r5','r6','c3'],
+#     'r7' : ['r3', 'r7','c1'],
+#     'r8' : ['r8'],
+#     'r9' : ['r9'],
+#     'r10': ['r10','c3'],
+#     'r11': ['r11','c3'],
+#     'r12': ['r12','r22', 'outside'],
+#     'r13': ['r9', 'r13','r24'],
+#     'r14': ['r14','r24'],
+#     'r15': ['r15','c3'],
+#     'r16': ['r16'],
+#     'r17': ['r17','c3'],
+#     'r18': ['r18','c3'],
+#     'r19': ['r19','c3'],
+#     'r20': ['r20','c3'],
+#     'r21': ['r21','c3'],
+#     'r22': ['r12', 'r22','r25'],
+#     'r23': ['r23','r24'],
+#     'r24': ['r24'],
+#     'r25': ['r25'],
+#     'r26': ['r26'],
+#     'r27': ['r27'],
+#     'r28': ['r28','c4'],
+#     'r29': ['r29','r30', 'c4'],
+#     'r30': ['r29','r30'],
+#     'r31': ['r31'],
+#     'r32': ['r32', 'r33'],
+#     'r33': ['r32','r33'],
+#     'r34': ['r34','c2'],
+#     'r35': ['r35'],
+#     'c1' : ['c1'],
+#     'c2' : ['c2'],
+#     'c3' : ['c3'],
+#     'c4' : ['c4'],
+#     'o1' : ['o1'],
+#     'outside': ['r12','outside']
+# }
+
 
 # Sensor locations
 urel_sens_loc = {
@@ -154,27 +201,27 @@ for i in list(urel_sens_loc.keys()) + list(rel_sens_loc.keys()):
 outcomeSpace = learn_outcome_space(data_processed)
 
 #function from tutorial to print a factor
-def printFactor(f):
-    """
-    argument
-    `f`, a factor to print on screen
-    """
-    # Create a empty list that we will fill in with the probability table entries
-    table = list()
+# def printFactor(f):
+#     """
+#     argument
+#     `f`, a factor to print on screen
+#     """
+#     # Create a empty list that we will fill in with the probability table entries
+#     table = list()
 
-    # Iterate over all keys and probability values in the table
-    for key, item in f['table'].items():
-        # Convert the tuple to a list to be able to manipulate it
-        k = list(key)
-        # Append the probability value to the list with key values
-        k.append(item)
-        # Append an entire row to the table
-        table.append(k)
-    # dom is used as table header. We need it converted to list
-    dom = list(f['dom'])
-    # Append a 'Pr' to indicate the probabity column
-    dom.append('Pr')
-    print(tabulate(table,headers=dom,tablefmt='orgtbl'))
+#     # Iterate over all keys and probability values in the table
+#     for key, item in f['table'].items():
+#         # Convert the tuple to a list to be able to manipulate it
+#         k = list(key)
+#         # Append the probability value to the list with key values
+#         k.append(item)
+#         # Append an entire row to the table
+#         table.append(k)
+#     # dom is used as table header. We need it converted to list
+#     dom = list(f['dom'])
+#     # Append a 'Pr' to indicate the probabity column
+#     dom.append('Pr')
+#     print(tabulate(table,headers=dom,tablefmt='orgtbl'))
 
 #Function from tutorial to hep to construct the table probablities
 def allEqualThisIndex(dict_of_arrays, **fixed_vars):
@@ -208,8 +255,10 @@ def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
     Calculate a dictionary probability table by ML given
     `data`, a dictionary or dataframe of observations
     `var_name`, the column of the data to be used for the conditioned variable and
-    `parent_names`, a tuple of columns to be used for the parents and
+    `parent_names`, a tuple of columns to be used for the parents (previous time step adjacency rooms) and
     `outcomeSpace`, a dict that maps variable names to a tuple of possible outcomes
+    'parent_offest' used to make the difference when we need to use variables of a previous time step (transition probabilities)
+    or from the same time step (emission probabilities)
     Return a dictionary containing an estimated conditional probability table.
     """
     var_outcomes = outcomeSpace[var_name]
@@ -221,25 +270,20 @@ def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
     alpha = 1
     prob_table = odict()
 
-    # Changed to only output the probability that there are people in the room p, and so P(0) = 1 - p
-    # This makes tables much smaller and keeps the exact same information since outcome space is binary
+
     for i, parent_combination in enumerate(all_parent_combinations):
         parent_vars = dict(zip(parent_names, parent_combination))
-        #print(parent_vars)
         parent_index = allEqualThisIndex(data, **parent_vars)
         ########we care for the previous state only, so we delete the last row#########
         parent_index=(parent_index, parent_index[:-parent_offest])[parent_offest > 0]
-        #print('parent_index',len(parent_index),parent_index)
-        #print('var_outcome:',var_outcome)
         var_index = data[var_name][parent_offest:]
         ########we need to consider from the second state, so we delete the first row#########
-        #print('var_index',len(var_index),var_index)
 
         p = ((var_index & parent_index).sum()+alpha)/(parent_index.sum() + alpha*len(var_outcomes))
         prob_table[tuple(list(parent_combination)+[1])] = p
         prob_table[tuple(list(parent_combination)+[0])] = 1 - p
 
-    # 'r16t-1' Denotes previous time as opposed to current time 'r16'
+    # 'r16_t-1' Denotes previous time as opposed to current time 'r16'
     if parent_offest: parent_names = [i + '_t-1' for i in parent_names]
 
     return {'dom': tuple(list(parent_names)+[var_name]), 'table': prob_table}
@@ -247,7 +291,7 @@ def estProbs(data, var_name, parent_names, outcomeSpace, parent_offest=0):
 #function from tutorial to calculate probability given an entry
 def prob(factor, *entry):
     return factor['table'][entry]
-
+#functio from tutorial to marginalize
 def marginalize(f, var, outcomeSpace):
     """
     argument
@@ -260,7 +304,6 @@ def marginalize(f, var, outcomeSpace):
     # Let's make a copy of f domain and convert it to a list. We need a list to be able to modify its elements
     new_dom = list(f['dom'])
 
-    # print(var,"!!!!", new_dom)
     new_dom.remove(var)            # Remove var from the list new_dom by calling the method remove().
     table = list()                 # Create an empty list for table. We will fill in table from scratch.
     for entries in product(*[outcomeSpace[node] for node in new_dom]):
@@ -364,8 +407,6 @@ def join(f1, f2, outcomeSpace):
 
     # The product iterator will generate all combinations of varible values
     # as specified in outcomeSpace. Therefore, it will naturally respect observed values
-    # print("****", common_vars)
-    # print(outcomeSpace)
     for entries in product(*[outcomeSpace[node] for node in common_vars]):
 
         # We need to map the entries to the domain of the factors f1 and f2
@@ -381,13 +422,27 @@ def join(f1, f2, outcomeSpace):
     return {'dom': tuple(common_vars), 'table': odict(table)}
 
 
+#Function from tutorial to normalize
+def normalize(f):
+    """
+    argument
+    `f`, factor to be normalized.
+
+    Returns a new factor f' as a copy of f with entries that sum up to 1
+    """
+    table = list()
+    sum = 0
+    for k, p in f['table'].items():
+        sum = sum + p
+    for k, p in f['table'].items():
+        table.append((k, p/sum))
+    return {'dom': f['dom'], 'table': odict(table)}
 
 #This is a modification of the tutorial function. This is for markov chains which state variable depend on the
 #the previous state of one or more state variables
 def miniForwardOnline(f, transition, outcomeSpace):
     """
     argument
-    'state_variable'(string), state variable whose factor is going to be calculated
     `f`, dictionary of factors (in the previous state of the chain) asociated with the state_variable
     `transition`, transition probabilities from time t-1 to t.
     `outcomeSpace`, dictionary with the domain of each variable.
@@ -416,27 +471,11 @@ def miniForwardOnline(f, transition, outcomeSpace):
     for i in fPrevious.keys():
         fCurrent=marginalize(fCurrent,i+'_t-1',outcomeSpace)
 
+    #The above gave us a normalized distribution, but given we are working with tiny numbers after the aprox 1000 iteration
+    #the distribuion start to be not normalized, so we normalize in every step to avoid this problem.
     fCurrent=normalize(fCurrent)
 
     return fCurrent
-
-
-
-#Function from tutorial to normalize
-def normalize(f):
-    """
-    argument
-    `f`, factor to be normalized.
-
-    Returns a new factor f' as a copy of f with entries that sum up to 1
-    """
-    table = list()
-    sum = 0
-    for k, p in f['table'].items():
-        sum = sum + p
-    for k, p in f['table'].items():
-        table.append((k, p/sum))
-    return {'dom': f['dom'], 'table': odict(table)}
 
 
 def forwardOnlineEmission(f, transition, emission, stateVar, emissionVar, emissionEvi, outcomeSpace):
@@ -486,7 +525,9 @@ offsets = [.50, d, .54, .48, d, .10, .45, -.10, .43, d, d,
 # General offset for prioritising lights off vs on
 offset = {}
 for i in range(35):
-    offset['r' + str(i + 1)] = offsets[i]
+    offset['r' + str(i + 1)] = d # offsets[i]
+offset['r8'] = 0.0
+offset['r26'] = 0.0
 
 def get_action(sensor_data):
     global actions_dict
@@ -502,10 +543,11 @@ def get_action(sensor_data):
     global door_sens_loc
     global list_non_sens_rooms
     global previous_G
+    global offset
 
     # Slightly offset probabilities based on electricity price
     elec = sensor_data['electricity_price']
-    elec_weight = 0.55
+    elec_weight = .55
 
     #transform sensor_data
     for k in sensor_data.keys():
@@ -514,6 +556,7 @@ def get_action(sensor_data):
                 sensor_data[k]=(0,1)[sensor_data[k]=='motion']
             elif k in door_sens_loc.keys():
                 sensor_data[k]=(0,1)[sensor_data[k]>0]
+
 
     for i in state.keys():
         # create dictionary with the factors of the state variables associated with the state variable i
@@ -526,7 +569,7 @@ def get_action(sensor_data):
             state[i]=miniForwardOnline(dict_variables, tran_prob_table[i], outcomeSpace)
 
         if i.startswith('r'):
-            inde = prob(state[i], 0) <= prob(state[i], 1) + (1 - elec) * elec_weight + offset[i]
+            inde = prob(state[i], 0) <= (prob(state[i], 1) + (1 - elec) * elec_weight + offset[i])
             actions_dict['lights' + i.split('r')[1]] = ('off', 'on')[inde]
 
     # use robots

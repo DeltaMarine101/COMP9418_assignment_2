@@ -24,7 +24,7 @@ from itertools import product, combinations
 from collections import OrderedDict as odict
 from graphviz import Digraph
 from tabulate import tabulate
-
+import pickle
 
 # Dependencies for transition probabilities (considering important interactions)
 previous_G = {
@@ -35,7 +35,7 @@ previous_G = {
     'r5' : ['r5', 'r6', 'r9'],
     'r6' : ['r6', 'c3'],
     'r7' : ['r3', 'r7'],
-    'r8' : ['r8', 'r9', 'r5'],
+    'r8' : ['r8', 'r9'],
     'r9' : ['r8', 'r9', 'r13'],
     'r10': ['r10', 'c3'],
     'r11': ['r11', 'c3', 'o1'],
@@ -46,14 +46,14 @@ previous_G = {
     'r16': ['r16', 'c3'],
     'r17': ['r17', 'c3'],
     'r18': ['r18', 'c3'],
-    'r19': ['r19', 'c3', 'r5'],
+    'r19': ['r19', 'c3'],
     'r20': ['r20', 'c3'],
     'r21': ['r21', 'c3'],
-    'r22': ['r22', 'r25', 'outside'],
+    'r22': ['r22', 'r25'],
     'r23': ['r23', 'r24'],
     'r24': ['r13', 'r23', 'r24'],
-    'r25': ['r25', 'r26', 'outside'],
-    'r26': ['r27', 'outside', 'r25'],
+    'r25': ['r25', 'r26'],
+    'r26': ['r27', 'r25'],
     'r27': ['r26', 'r27', 'r31'],
     'r28': ['r28', 'c4'],
     'r29': ['r29', 'r30', 'c4'],
@@ -65,58 +65,11 @@ previous_G = {
     'r35': ['r35', 'c4'],
     'c1' : ['r7', 'c1', 'c2'],
     'c2' : ['c2', 'c4'],
-    'c3' : ['c3', 'r20', 'c4'],
+    'c3' : ['c3', 'c4'],
     'c4' : ['r28', 'r35', 'c2'],
     'o1' : ['c3', 'c4', 'o1'],
     'outside': ['r12', 'outside', 'r25']
 }
-
-# Dependencies for transition probabilities. For sensored rooms we are not going to consider rooms interactions
-
-# previous_G = {
-#     'r1' : ['r1'],
-#     'r2' : ['r1', 'r2','r4'],
-#     'r3' : ['r1', 'r3','r7'],
-#     'r4' : ['r2', 'r4','r8'],
-#     'r5' : ['r5'],
-#     'r6' : ['r5','r6','c3'],
-#     'r7' : ['r3', 'r7','c1'],
-#     'r8' : ['r8'],
-#     'r9' : ['r9'],
-#     'r10': ['r10','c3'],
-#     'r11': ['r11','c3'],
-#     'r12': ['r12','r22', 'outside'],
-#     'r13': ['r9', 'r13','r24'],
-#     'r14': ['r14','r24'],
-#     'r15': ['r15','c3'],
-#     'r16': ['r16'],
-#     'r17': ['r17','c3'],
-#     'r18': ['r18','c3'],
-#     'r19': ['r19','c3'],
-#     'r20': ['r20','c3'],
-#     'r21': ['r21','c3'],
-#     'r22': ['r12', 'r22','r25'],
-#     'r23': ['r23','r24'],
-#     'r24': ['r24'],
-#     'r25': ['r25'],
-#     'r26': ['r26'],
-#     'r27': ['r27'],
-#     'r28': ['r28','c4'],
-#     'r29': ['r29','r30', 'c4'],
-#     'r30': ['r29','r30'],
-#     'r31': ['r31'],
-#     'r32': ['r32', 'r33'],
-#     'r33': ['r32','r33'],
-#     'r34': ['r34','c2'],
-#     'r35': ['r35'],
-#     'c1' : ['c1'],
-#     'c2' : ['c2'],
-#     'c3' : ['c3'],
-#     'c4' : ['c4'],
-#     'o1' : ['o1'],
-#     'outside': ['r12','outside']
-# }
-
 
 # Sensor locations
 urel_sens_loc = {
@@ -358,6 +311,16 @@ for k in door_sens_loc.keys():
 #Eliminate the old door_sensor tables
 for k in door_sens_loc.keys():
     emis_prob_table.pop(k)
+
+##### TODO: Remember to comment this out!!!
+outfile = open('tables', 'wb')
+pickle.dump([emis_prob_table, tran_prob_table], outfile)
+outfile.close()
+
+#### Use pickle to save a fraction of a second here, tables generated using code above ####
+infile = open('tables', 'rb')
+emis_prob_table, tran_prob_table = pickle.load(infile)
+infile.close()
 
 #Make a dictionary of emission probabilities with the state variable as a key
 emis_prob_table_varstate={}
